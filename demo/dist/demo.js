@@ -54,15 +54,15 @@
 	
 	var _SystemController2 = _interopRequireDefault(_SystemController);
 	
-	var _Play = __webpack_require__(4);
+	var _Play = __webpack_require__(5);
 	
 	var _Play2 = _interopRequireDefault(_Play);
 	
-	var _BallSpinner = __webpack_require__(6);
+	var _BallSpinner = __webpack_require__(7);
 	
 	var _BallSpinner2 = _interopRequireDefault(_BallSpinner);
 	
-	var _THREE = __webpack_require__(5);
+	var _THREE = __webpack_require__(6);
 	
 	var _THREE2 = _interopRequireDefault(_THREE);
 	
@@ -102,7 +102,7 @@
 	
 	var _Scene2 = _interopRequireDefault(_Scene);
 	
-	var _RendererController = __webpack_require__(9);
+	var _RendererController = __webpack_require__(4);
 	
 	var _RendererController2 = _interopRequireDefault(_RendererController);
 	
@@ -130,6 +130,10 @@
 	    value: function addScene(scene) {
 	      if (!scene instanceof _Scene2.default) {
 	        throw new Error("The scene provided is not valid");
+	      }
+	
+	      if (typeof scene.name !== "string" || !scene.name) {
+	        throw new Error("All scenes are required to have a name");
 	      }
 	
 	      this._scenes[scene.name] = scene;
@@ -367,6 +371,78 @@
 
 /***/ },
 /* 4 */
+/***/ function(module, exports) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var RendererController = function () {
+	  function RendererController(options) {
+	    _classCallCheck(this, RendererController);
+	  }
+	
+	  // The frameStart method calls each node's update method
+	
+	
+	  _createClass(RendererController, [{
+	    key: "frameStart",
+	    value: function frameStart() {
+	      var _iteratorNormalCompletion = true;
+	      var _didIteratorError = false;
+	      var _iteratorError = undefined;
+	
+	      try {
+	        for (var _iterator = this.systemController.currentScene.nodes[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	          var node = _step.value;
+	
+	          node.update();
+	        }
+	      } catch (err) {
+	        _didIteratorError = true;
+	        _iteratorError = err;
+	      } finally {
+	        try {
+	          if (!_iteratorNormalCompletion && _iterator.return) {
+	            _iterator.return();
+	          }
+	        } finally {
+	          if (_didIteratorError) {
+	            throw _iteratorError;
+	          }
+	        }
+	      }
+	    }
+	  }, {
+	    key: "onResize",
+	    value: function onResize() {
+	      console.log(1);
+	    }
+	  }, {
+	    key: "onSceneLoad",
+	    value: function onSceneLoad(unloadingScene, loadingScene, next) {
+	      if (typeof next === "function") {
+	        next();
+	      }
+	    }
+	  }, {
+	    key: "onNodeAdded",
+	    value: function onNodeAdded(node) {}
+	  }]);
+	
+	  return RendererController;
+	}();
+	
+	exports.default = RendererController;
+
+/***/ },
+/* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -383,7 +459,7 @@
 	
 	var _Scene3 = _interopRequireDefault(_Scene2);
 	
-	var _THREE = __webpack_require__(5);
+	var _THREE = __webpack_require__(6);
 	
 	var _THREE2 = _interopRequireDefault(_THREE);
 	
@@ -423,7 +499,7 @@
 	exports.default = Play;
 
 /***/ },
-/* 5 */
+/* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -436,7 +512,7 @@
 	
 	var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
 	
-	var _RendererControllerClass = __webpack_require__(9);
+	var _RendererControllerClass = __webpack_require__(4);
 	
 	var _RendererControllerClass2 = _interopRequireDefault(_RendererControllerClass);
 	
@@ -529,12 +605,12 @@
 	    value: function onNodeAdded(node) {
 	      _get(Object.getPrototypeOf(THREERenderer.prototype), "onNodeAdded", this).call(this, node);
 	
-	      // A node has been added to the sanbara scene. Add it to the THREE scene
-	      if (!node.mesh) {
-	        throw new Error("When using the three.js adapter, all nodes must include a mesh property.");
+	      // If node doesn't have a parent then add directly to the scene
+	      if (!node.parent) {
+	        this.THREE.scene.add(node.threeObject);
+	      } else {
+	        node.parent.threeObject.add(node.threeObject);
 	      }
-	
-	      this.THREE.scene.add(node.mesh);
 	    }
 	  }]);
 	
@@ -545,7 +621,7 @@
 	;
 
 /***/ },
-/* 6 */
+/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -560,9 +636,17 @@
 	
 	var _System3 = _interopRequireDefault(_System2);
 	
-	var _Ball = __webpack_require__(7);
+	var _Ball = __webpack_require__(8);
 	
 	var _Ball2 = _interopRequireDefault(_Ball);
+	
+	var _DirectionalLight = __webpack_require__(10);
+	
+	var _DirectionalLight2 = _interopRequireDefault(_DirectionalLight);
+	
+	var _PointLight = __webpack_require__(11);
+	
+	var _PointLight2 = _interopRequireDefault(_PointLight);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -585,8 +669,26 @@
 	  _createClass(BallSpinner, [{
 	    key: "onSceneLoad",
 	    value: function onSceneLoad(scene) {
+	      var THREE = window.THREE;
+	
 	      var ballNode = new _Ball2.default({});
+	      var lightNode = new _DirectionalLight2.default({
+	        x: 10,
+	        y: -20,
+	        z: 10
+	      });
+	
+	      var redLightNode = new _PointLight2.default({
+	        color: 0x00ff00,
+	        x: -30,
+	        y: 20,
+	        z: -10
+	      });
+	      console.log(redLightNode);
+	
 	      scene.add(ballNode);
+	      scene.add(lightNode);
+	      scene.add(redLightNode);
 	    }
 	  }]);
 	
@@ -596,7 +698,7 @@
 	exports.default = BallSpinner;
 
 /***/ },
-/* 7 */
+/* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -609,7 +711,7 @@
 	
 	var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
 	
-	var _Node2 = __webpack_require__(8);
+	var _Node2 = __webpack_require__(9);
 	
 	var _Node3 = _interopRequireDefault(_Node2);
 	
@@ -630,9 +732,11 @@
 	    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Ball).call(this, options));
 	
 	    var THREE = window.THREE;
-	    var geometry = new THREE.SphereGeometry(15, 8, 6);
-	    var material = new THREE.MeshBasicMaterial({ color: 0x00aaff });
-	    _this.mesh = new THREE.Mesh(geometry, material);
+	    var geometry = new THREE.SphereGeometry(15, 16, 16);
+	    var material = new THREE.MeshLambertMaterial({ color: 0x00aaff });
+	    _this.threeObject = new THREE.Mesh(geometry, material);
+	
+	    _this.threeObject.position.z -= 30;
 	    return _this;
 	  }
 	
@@ -641,8 +745,8 @@
 	    value: function update() {
 	      _get(Object.getPrototypeOf(Ball.prototype), "update", this).call(this);
 	
-	      this.mesh.rotation.x += 0.01;
-	      this.mesh.rotation.y += 0.02;
+	      this.threeObject.rotation.x += 0.01;
+	      this.threeObject.rotation.y += 0.02;
 	    }
 	  }]);
 	
@@ -652,7 +756,7 @@
 	exports.default = Ball;
 
 /***/ },
-/* 8 */
+/* 9 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -682,8 +786,8 @@
 	;
 
 /***/ },
-/* 9 */
-/***/ function(module, exports) {
+/* 10 */
+/***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	
@@ -691,67 +795,81 @@
 	  value: true
 	});
 	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	var _Node2 = __webpack_require__(9);
+	
+	var _Node3 = _interopRequireDefault(_Node2);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
-	var RendererController = function () {
-	  function RendererController(options) {
-	    _classCallCheck(this, RendererController);
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var DirectionalLight = function (_Node) {
+	  _inherits(DirectionalLight, _Node);
+	
+	  function DirectionalLight(options) {
+	    _classCallCheck(this, DirectionalLight);
+	
+	    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(DirectionalLight).call(this, options));
+	
+	    options = options || {};
+	
+	    var THREE = window.THREE;
+	    _this.threeObject = new THREE.DirectionalLight(options.color || 0xffffff, options.intensity || 1);
+	    _this.threeObject.position.set(options.x || 0, options.y || 0, options.z || 0);
+	    return _this;
 	  }
 	
-	  // The frameStart method calls each node's update method
+	  return DirectionalLight;
+	}(_Node3.default);
 	
+	exports.default = DirectionalLight;
+
+/***/ },
+/* 11 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
 	
-	  _createClass(RendererController, [{
-	    key: "frameStart",
-	    value: function frameStart() {
-	      var _iteratorNormalCompletion = true;
-	      var _didIteratorError = false;
-	      var _iteratorError = undefined;
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
 	
-	      try {
-	        for (var _iterator = this.systemController.currentScene.nodes[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-	          var node = _step.value;
+	var _Node2 = __webpack_require__(9);
 	
-	          node.update();
-	        }
-	      } catch (err) {
-	        _didIteratorError = true;
-	        _iteratorError = err;
-	      } finally {
-	        try {
-	          if (!_iteratorNormalCompletion && _iterator.return) {
-	            _iterator.return();
-	          }
-	        } finally {
-	          if (_didIteratorError) {
-	            throw _iteratorError;
-	          }
-	        }
-	      }
-	    }
-	  }, {
-	    key: "onResize",
-	    value: function onResize() {
-	      console.log(1);
-	    }
-	  }, {
-	    key: "onSceneLoad",
-	    value: function onSceneLoad(unloadingScene, loadingScene, next) {
-	      if (typeof next === "function") {
-	        next();
-	      }
-	    }
-	  }, {
-	    key: "onNodeAdded",
-	    value: function onNodeAdded(node) {}
-	  }]);
+	var _Node3 = _interopRequireDefault(_Node2);
 	
-	  return RendererController;
-	}();
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
-	exports.default = RendererController;
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var PointLight = function (_Node) {
+	  _inherits(PointLight, _Node);
+	
+	  function PointLight(options) {
+	    _classCallCheck(this, PointLight);
+	
+	    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(PointLight).call(this, options));
+	
+	    options = options || {};
+	
+	    var THREE = window.THREE;
+	    _this.threeObject = new THREE.PointLight(options.color || 0xffffff, options.intensity || 1, options.distance || 0, options.decay);
+	    _this.threeObject.position.set(options.x || 0, options.y || 0, options.z || 0);
+	    return _this;
+	  }
+	
+	  return PointLight;
+	}(_Node3.default);
+	
+	exports.default = PointLight;
 
 /***/ }
 /******/ ]);

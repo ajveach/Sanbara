@@ -1,6 +1,6 @@
 import SystemController from "../../src/shared/systemController/SystemController.class";
 import PlayScene from "./scenes/Play.Scene";
-import BallSpinnerSystem from "./BallSpinner.System";
+import BallSpinnerSystem from "./systems/BallSpinner.System";
 
 import THREEAdapter from "../../adapters/rendering/THREE.js/THREE.adapter";
 
