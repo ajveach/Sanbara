@@ -1,0 +1,26 @@
+@import "compass/css3";
+
+*{
+  padding:0;
+  margin:0;
+}
+
+html,body{
+  position:relative;
+  height:100%;
+  overflow:hidden;
+}
+
+body {
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+a {
+  color: #00B7FF;
+}
+
+#sanbara{
+  position: relative;
+  height:100%;
+  width:100%;
+}
